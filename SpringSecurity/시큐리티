@@ -25,3 +25,25 @@
     인증 (Authentication) : 자신을 증명하는 작업
     인가(권한부여)(Authorization) : 남이 나에게 부여해줌
     
+    [일반 프로젝트]
+    회원의 아이디 (userid)
+    회원의 이름 (username)
+    
+    user (사용자)
+    
+    [시큐리티 프로젝트]
+    회원의 아이디(userid) => (username)
+    회원의 이름(username) => (name)
+    
+    User(인증정보, 권한을 가진 객체)
+    
+    CSRF( Cross-Site Request Forgery ) 공격    
+    => 사이트간 위조 방지를 위해서 토큰값을 가져다가 사용
+    
+    서버에서 생성된 임의의 토큰값을 비교
+    <img src="www.itwillbs.co.kr/update?id=admin&grade=admin">
+    
+    
+    
+    
+    

@@ -4,16 +4,32 @@
 	xmlns:security="http://www.springframework.org/schema/security"
 	xsi:schemaLocation="http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+		
+	<!-- 접근 권한 없는 객체 -->
+	<bean id="customAccessDenied" class="com.itwillbs.security.CustomAccessDeniedHandeler" />
+	<!-- 로그인 성공시 사용하는 객체 -->
+	<bean id="customLoginSuccess" class="com.itwillbs.security.CustomLoginSuccessHandler" />
+
 
 	<!-- 시큐리티 설정  -->
 	<security:http>
-		<security:form-login/>
 		
 		<security:intercept-url pattern="/sample/all" access="permitAll"/>
 		<security:intercept-url pattern="/sample/member" access="hasRole('ROLE_MEMBER')"/>
 		<security:intercept-url pattern="/sample/admin" access="hasRole('ROLE_ADMIN')"/>
-		
 		<security:intercept-url pattern="/members/*" access="hasRole('ROLE_MEMBER')"/>
+		
+		<!-- 접근 권한이 없는 경우 처리 -->
+		<!-- <security:access-denied-handler error-page="/accessErr" /> -->
+		<security:access-denied-handler ref="customAccessDenied" />
+		
+		<!-- 시큐리티 기본 로그인 페이지 -->
+		<!-- <security:form-login login-page=""/> -->
+		<security:form-login login-page="/customLogin" authentication-success-handler-ref="customLoginSuccess"  />
+		
+		<!-- 로그아웃  -->
+		<security:logout logout-url="/customLogout" invalidate-session="true" />
+		
 	</security:http>
 	
 	
@@ -21,7 +37,10 @@
 	<security:authentication-manager>
 		<security:authentication-provider>
 			<security:user-service>
+			
 				<security:user name="member" password="{noop}1234" authorities="ROLE_MEMBER"/>
+				<security:user name="admin" password="{noop}1234" authorities="ROLE_ADMIN,ROLE_MEMBER"/>
+				
 			</security:user-service>
 		</security:authentication-provider>
 	</security:authentication-manager>
