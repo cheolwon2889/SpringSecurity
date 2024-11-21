@@ -4,45 +4,69 @@
 	xmlns:security="http://www.springframework.org/schema/security"
 	xsi:schemaLocation="http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
-		
-	<!-- 접근 권한 없는 객체 -->
-	<bean id="customAccessDenied" class="com.itwillbs.security.CustomAccessDeniedHandeler" />
-	<!-- 로그인 성공시 사용하는 객체 -->
-	<bean id="customLoginSuccess" class="com.itwillbs.security.CustomLoginSuccessHandler" />
 
+	<!-- 접근권한 없을때 처리하는 객체 -->
+	<bean id="customAccessDenied" 
+	       class="com.itwillbs.security.CustomAccessDeniedHandeler"/>
 
-	<!-- 시큐리티 설정  -->
+	<!-- 로그인 성공시 처리하는 객체 -->
+	<bean id="customLoginSuccess"
+	      class="com.itwillbs.security.CustomLoginSuccessHandler"/>
+	      
+	<!-- 임시 암호화처리 객체  -->
+<!-- 	<bean id="customNoopPasswordEncoder" -->
+<!-- 		  class="com.itwillbs.security.CustomNoopPasswordEncoder"/> -->
+		  
+	<!-- 암호화처리 객체 (사용) -->
+	<bean id="bcryptPasswordEncoder" 
+		  class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder" />
+	
+	      
+
+	<!-- 시큐리티 설정 -->
 	<security:http>
 		
-		<security:intercept-url pattern="/sample/all" access="permitAll"/>
-		<security:intercept-url pattern="/sample/member" access="hasRole('ROLE_MEMBER')"/>
+		<security:intercept-url pattern="/sample/all" access="permitAll"/>	
+		<security:intercept-url pattern="/sample/member" access="hasRole('ROLE_MEMBER')"/>	
 		<security:intercept-url pattern="/sample/admin" access="hasRole('ROLE_ADMIN')"/>
+		
 		<security:intercept-url pattern="/members/*" access="hasRole('ROLE_MEMBER')"/>
 		
-		<!-- 접근 권한이 없는 경우 처리 -->
-		<!-- <security:access-denied-handler error-page="/accessErr" /> -->
-		<security:access-denied-handler ref="customAccessDenied" />
+		<!-- 접근권한이 없는경우 처리  -->
+		<!-- <security:access-denied-handler error-page="/accessErr"/> -->
+		<security:access-denied-handler ref="customAccessDenied"/>
 		
 		<!-- 시큐리티 기본 로그인 페이지 -->
-		<!-- <security:form-login login-page=""/> -->
-		<security:form-login login-page="/customLogin" authentication-success-handler-ref="customLoginSuccess"  />
-		
-		<!-- 로그아웃  -->
-		<security:logout logout-url="/customLogout" invalidate-session="true" />
-		
+<!-- 		<security:form-login/>	 -->
+		<security:form-login login-page="/customLogin" 
+		                     authentication-success-handler-ref="customLoginSuccess"/>
+		<!-- 로그아웃 -->
+		<security:logout logout-url="/customLogout" invalidate-session="true"  />
+			
 	</security:http>
 	
 	
-	<!-- 시큐리티 인증관리 설정  -->
+	<!-- 시큐리티 인증관리 설정 -->	
 	<security:authentication-manager>
 		<security:authentication-provider>
-			<security:user-service>
-			
-				<security:user name="member" password="{noop}1234" authorities="ROLE_MEMBER"/>
-				<security:user name="admin" password="{noop}1234" authorities="ROLE_ADMIN,ROLE_MEMBER"/>
-				
-			</security:user-service>
-		</security:authentication-provider>
+		  <security:jdbc-user-service data-source-ref="dataSource" 
+		  users-by-username-query="select userid,userpw,enabled from tbl_member where userid=?" 
+		  authorities-by-username-query="select userid,auth from tbl_member_auth where userid=?"
+		  
+		  />
+		  
+		  <security:password-encoder ref="bcryptPasswordEncoder" />
+<!-- 	  <security:password-encoder ref="customNoopPasswordEncoder" /> -->
+		  
+<!-- 		1층에서 방문자 기록 (사용자 정보 저장&체크)		 -->
+<!-- 			<security:user-service> -->
+<!-- 				<security:user name="member" password="{noop}1234"  -->
+<!-- 				               authorities="ROLE_MEMBER"/> -->
+<!-- 				<security:user name="admin"  password="{noop}1234"  -->
+<!-- 				               authorities="ROLE_ADMIN,ROLE_MEMBER"/>                -->
+<!-- 			</security:user-service>			 -->
+		</security:authentication-provider>	
 	</security:authentication-manager>
+	
 
 </beans>
