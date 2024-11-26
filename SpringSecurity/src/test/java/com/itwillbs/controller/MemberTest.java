@@ -8,14 +8,21 @@ import javax.sql.DataSource;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import com.itwillbs.domain.MemberVO;
+import com.itwillbs.persistence.MemberDAO;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "file:src/main/webapp/WEB-INF/spring/root-context.xml",
 		"file:src/main/webapp/WEB-INF/spring/security-context.xml" })
 public class MemberTest {
+	
+	private static final Logger logger = LoggerFactory.getLogger(MemberTest.class);
 
 	@Inject
 	private DataSource ds;
@@ -23,8 +30,11 @@ public class MemberTest {
 	// 암호화 처리 객체
 	@Inject
 	private PasswordEncoder pwEncoder;
+	
+	@Inject
+	private MemberDAO mdao;
 
-	@Test
+	//@Test
 	public void insertMemberTest() throws Exception {
 
 		for (int i = 0; i < 100; i++) {
@@ -71,7 +81,7 @@ public class MemberTest {
 		}
 
 	}
-	@Test
+	//@Test
 	public void insertAuthMemberTest() throws Exception {
 		
 		for (int i = 0; i < 100; i++) {
@@ -111,5 +121,15 @@ public class MemberTest {
 		}
 		
 	}
+	
+	@Test
+	public void testMemeberAuth() throws Exception {
+		MemberVO resultVO = mdao.getMemberAuth("admin90");
+		
+		logger.info("result VO : {}",resultVO);
+		
+	}
+	
+	
 
 }
